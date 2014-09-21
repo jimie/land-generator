@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.*;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -25,17 +26,15 @@ public class GdxSandboxGame extends ApplicationAdapter {
     private TiledMapRenderer renderer;
     private OrthographicCamera camera;
     private OrthoCamController cameraController;
-    private AssetManager assetManager;
     private Texture tiles;
-    private Texture texture;
     private BitmapFont font;
     private SpriteBatch batch;
     private ScheduledExecutorService scheduledExecutorService;
 
     @Override
     public void create() {
-        camera = new OrthographicCamera(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-        camera.setToOrtho(false, 1024, 768);
+        camera = new OrthographicCamera();
+        camera.setToOrtho(true, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.update();
 
         cameraController = new OrthoCamController(camera);
@@ -47,25 +46,27 @@ public class GdxSandboxGame extends ApplicationAdapter {
         tiles = new Texture(Gdx.files.internal("tiles.png"));
         final TextureRegion[][] splitTiles = TextureRegion.split(tiles, 32, 32);
         map = new TiledMap();
-        MapLayers layers = map.getLayers();
-        TiledMapTileLayer layer = new TiledMapTileLayer(100, 100, 32, 32);
-        layers.add(layer);
 
         renderer = new OrthogonalTiledMapRenderer(map);
-        scheduledExecutorService = Executors.newScheduledThreadPool(1500);
 
-        for (int i = 0; i < 1500; i++) {
-            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    MapLayers layers = map.getLayers();
-                    TiledMapTileLayer layer = (TiledMapTileLayer) layers.get(0);
-                    TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-                    cell.setTile(new StaticTiledMapTile(splitTiles[0][((int) (Math.random() * 4))]));
-                    layer.setCell(((int) (Math.random() * 100)), ((int) (Math.random() * 100)), cell);
-                }
-            }, 0, 100 * i + 1, TimeUnit.MILLISECONDS);
+        Scanner mapScanner = new Scanner(Gdx.files.internal("sample_map").read());
+        int[][] mapBuffer = new int[10][10];
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                mapBuffer[i][j] = mapScanner.nextInt();
+            }
         }
+
+        MapLayers layers = map.getLayers();
+        TiledMapTileLayer layer = new TiledMapTileLayer(10, 10, 32, 32);
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                cell.setTile(new StaticTiledMapTile(splitTiles[0][mapBuffer[i][j]]));
+                layer.setCell(j, i, cell);
+            }
+        }
+        layers.add(layer);
     }
 
     @Override
@@ -79,5 +80,12 @@ public class GdxSandboxGame extends ApplicationAdapter {
         batch.begin();
         font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
         batch.end();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        camera.viewportWidth = width;
+        camera.viewportHeight = camera.viewportWidth * height / width;
+        camera.update();
     }
 }
