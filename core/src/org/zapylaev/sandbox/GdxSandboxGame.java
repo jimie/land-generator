@@ -34,9 +34,6 @@ public class GdxSandboxGame extends ApplicationAdapter {
 
     @Override
     public void create() {
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
         camera = new OrthographicCamera(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
         camera.setToOrtho(false, 1024, 768);
         camera.update();
@@ -49,22 +46,15 @@ public class GdxSandboxGame extends ApplicationAdapter {
 
         tiles = new Texture(Gdx.files.internal("tiles.png"));
         final TextureRegion[][] splitTiles = TextureRegion.split(tiles, 32, 32);
-        {
-            map = new TiledMap();
-            MapLayers layers = map.getLayers();
-            TiledMapTileLayer layer = new TiledMapTileLayer(100, 100, 32, 32);
-            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
-            cell.setTile(new StaticTiledMapTile(splitTiles[0][1]));
-            layer.setCell(0, 0, cell);
-            layer.setCell(1, 1, cell);
-            layer.setCell(2, 2, cell);
-            layers.add(layer);
-        }
+        map = new TiledMap();
+        MapLayers layers = map.getLayers();
+        TiledMapTileLayer layer = new TiledMapTileLayer(100, 100, 32, 32);
+        layers.add(layer);
 
         renderer = new OrthogonalTiledMapRenderer(map);
-        scheduledExecutorService = Executors.newScheduledThreadPool(500);
+        scheduledExecutorService = Executors.newScheduledThreadPool(1500);
 
-        for (int i = 0; i < 500; i++) {
+        for (int i = 0; i < 1500; i++) {
             scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
@@ -74,7 +64,7 @@ public class GdxSandboxGame extends ApplicationAdapter {
                     cell.setTile(new StaticTiledMapTile(splitTiles[0][((int) (Math.random() * 4))]));
                     layer.setCell(((int) (Math.random() * 100)), ((int) (Math.random() * 100)), cell);
                 }
-            }, 0, 1, TimeUnit.SECONDS);
+            }, 0, 100 * i + 1, TimeUnit.MILLISECONDS);
         }
     }
 

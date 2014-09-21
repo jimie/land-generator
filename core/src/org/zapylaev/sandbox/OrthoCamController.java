@@ -25,9 +25,11 @@ public class OrthoCamController extends InputAdapter {
     final Vector3 curr = new Vector3();
     final Vector3 last = new Vector3(-1, -1, -1);
     final Vector3 delta = new Vector3();
+    int zoom = 1;
 
     public OrthoCamController (OrthographicCamera camera) {
         this.camera = camera;
+        camera.zoom = 1;
     }
 
     @Override
@@ -46,5 +48,12 @@ public class OrthoCamController extends InputAdapter {
     public boolean touchUp (int x, int y, int pointer, int button) {
         last.set(-1, -1, -1);
         return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        zoom += amount;
+        camera.zoom += amount / 10f;
+        return true;
     }
 }
