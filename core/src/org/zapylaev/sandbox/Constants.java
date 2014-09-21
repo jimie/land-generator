@@ -4,6 +4,6 @@ package org.zapylaev.sandbox;
  * @author k.zapylaev <zapylaev@gmail.com>
  */
 public class Constants {
-    public static final float SCREEN_WIDTH = 16 * 3;
-    public static final float SCREEN_HEIGHT = 12 * 3;
+    public static final int SCREEN_WIDTH = 1024;
+    public static final int SCREEN_HEIGHT = 768;
 }

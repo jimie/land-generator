@@ -2,47 +2,92 @@ package org.zapylaev.sandbox;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapLayers;
+import com.badlogic.gdx.maps.tiled.*;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GdxSandboxGame extends ApplicationAdapter {
-    private Texture mTexture;
-    private OrthographicCamera mMainCamera;
-    private SpriteBatch mMainBatch;
-    private Pixmap mPixmap;
+    private TiledMap map;
+    private TiledMapRenderer renderer;
+    private OrthographicCamera camera;
+    private OrthoCamController cameraController;
+    private AssetManager assetManager;
+    private Texture tiles;
+    private Texture texture;
+    private BitmapFont font;
+    private SpriteBatch batch;
+    private ScheduledExecutorService scheduledExecutorService;
 
     @Override
     public void create() {
-        mMainBatch = new SpriteBatch();
-        mPixmap = new Pixmap((int) Constants.SCREEN_WIDTH, (int) Constants.SCREEN_HEIGHT, Pixmap.Format.RGBA8888);
-        mPixmap.setColor(Color.BLUE);
-        mPixmap.fill();
-        mPixmap.setColor(Color.ORANGE);
-        mPixmap.drawPixel(0, 0);
-        mPixmap.drawPixel(1, 1);
-        mPixmap.drawPixel(2, 2);
-        mTexture = new Texture(mPixmap);
-        mPixmap.dispose();
-        mMainCamera = new OrthographicCamera(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-        mMainCamera.update();
+        float w = Gdx.graphics.getWidth();
+        float h = Gdx.graphics.getHeight();
+
+        camera = new OrthographicCamera(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        camera.setToOrtho(false, 1024, 768);
+        camera.update();
+
+        cameraController = new OrthoCamController(camera);
+        Gdx.input.setInputProcessor(cameraController);
+
+        font = new BitmapFont();
+        batch = new SpriteBatch();
+
+        tiles = new Texture(Gdx.files.internal("tiles.png"));
+        final TextureRegion[][] splitTiles = TextureRegion.split(tiles, 32, 32);
+        {
+            map = new TiledMap();
+            MapLayers layers = map.getLayers();
+            TiledMapTileLayer layer = new TiledMapTileLayer(100, 100, 32, 32);
+            TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+            cell.setTile(new StaticTiledMapTile(splitTiles[0][1]));
+            layer.setCell(0, 0, cell);
+            layer.setCell(1, 1, cell);
+            layer.setCell(2, 2, cell);
+            layers.add(layer);
+        }
+
+        renderer = new OrthogonalTiledMapRenderer(map);
+        scheduledExecutorService = Executors.newScheduledThreadPool(500);
+
+        for (int i = 0; i < 500; i++) {
+            scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    MapLayers layers = map.getLayers();
+                    TiledMapTileLayer layer = (TiledMapTileLayer) layers.get(0);
+                    TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
+                    cell.setTile(new StaticTiledMapTile(splitTiles[0][((int) (Math.random() * 4))]));
+                    layer.setCell(((int) (Math.random() * 100)), ((int) (Math.random() * 100)), cell);
+                }
+            }, 0, 1, TimeUnit.SECONDS);
+        }
     }
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        camera.update();
+        renderer.setView(camera);
+        renderer.render();
 
-        mMainBatch.setProjectionMatrix(mMainCamera.combined);
-        mMainBatch.begin();
-        mMainBatch.draw(mTexture, -Constants.SCREEN_WIDTH / 2, -Constants.SCREEN_HEIGHT / 2);
-        mMainBatch.end();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        float aspectRatio = (float) width / height;
-        mMainCamera.viewportWidth = Constants.SCREEN_HEIGHT * aspectRatio;
-        mMainCamera.update();
+        batch.begin();
+        font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+        batch.end();
     }
 }
