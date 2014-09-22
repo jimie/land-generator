@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import org.zapylaev.sandbox.renderer.FpsRenderer;
+import org.zapylaev.sandbox.renderer.LineRenderer;
 import org.zapylaev.sandbox.renderer.MapRenderer;
 import org.zapylaev.sandbox.renderer.Renderer;
 
@@ -13,17 +14,19 @@ public class GdxSandboxGame extends ApplicationAdapter {
     private OrthographicCamera mMainCamera;
     private Renderer mFpsRenderer;
     private Renderer mMapRenderer;
+    private Renderer mLineRenderer;
 
     @Override
     public void create() {
         mMainCamera = new OrthographicCamera();
-        mMainCamera.setToOrtho(true, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        mMainCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         mMainCamera.update();
 
         Gdx.input.setInputProcessor(new OrthoCamController(mMainCamera));
 
         mFpsRenderer = new FpsRenderer();
         mMapRenderer = new MapRenderer();
+        mLineRenderer = new LineRenderer();
     }
 
     @Override
@@ -32,7 +35,8 @@ public class GdxSandboxGame extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mMainCamera.update();
 
-        mMapRenderer.render(mMainCamera);
+//        mMapRenderer.render(mMainCamera);
+        mLineRenderer.render(mMainCamera);
         mFpsRenderer.render(mMainCamera);
     }
 

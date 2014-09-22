@@ -20,4 +20,14 @@ public class GenerateFromFile implements MapGenerator {
         }
         return mapBuffer;
     }
+
+    @Override
+    public int[] generateLine(int length) {
+        Scanner mapScanner = new Scanner(Gdx.files.internal("sample_map").read());
+        int[] line = new int[length];
+        for (int i = 0; i < length; i++) {
+            line[i] = mapScanner.nextInt();
+        }
+        return line;
+    }
 }
