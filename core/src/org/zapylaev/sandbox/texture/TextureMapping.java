@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author k.zapylaev <zapylaev@gmail.com>

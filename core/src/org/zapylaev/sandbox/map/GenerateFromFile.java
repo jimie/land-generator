@@ -22,9 +22,9 @@ public class GenerateFromFile implements MapGenerator {
     }
 
     @Override
-    public int[] generateLine(int length) {
+    public double[] generateLine(int length) {
         Scanner mapScanner = new Scanner(Gdx.files.internal("sample_map").read());
-        int[] line = new int[length];
+        double[] line = new double[length];
         for (int i = 0; i < length; i++) {
             line[i] = mapScanner.nextInt();
         }

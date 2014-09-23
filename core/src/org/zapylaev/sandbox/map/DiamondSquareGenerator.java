@@ -1,12 +1,16 @@
 package org.zapylaev.sandbox.map;
 
+import java.util.Random;
+
 /**
  * @author k.zapylaev <zapylaev@gmail.com>
  */
 public class DiamondSquareGenerator implements MapGenerator {
 
     public static final int LINE_MAX_HEIGHT = 30;
+    public static final double ROUGHNESS = 0.09;
     private Value[] mLine;
+    private static Random sRandom = new Random();
 
     @Override
     public int[][] generateMap(int size) {
@@ -15,10 +19,10 @@ public class DiamondSquareGenerator implements MapGenerator {
 
     static class Value {
         int i;
-        int v;
+        double v;
 
-        int middle(Value other) {
-            return Math.abs(other.v + v) / 2;
+        double middle(Value other) {
+            return (other.v + v) / 2.0;
         }
 
         @Override
@@ -28,7 +32,7 @@ public class DiamondSquareGenerator implements MapGenerator {
     }
 
     @Override
-    public int[] generateLine(int length) {
+    public double[] generateLine(int length) {
         mLine = new Value[length];
         for (int i = 0; i < mLine.length; i++) {
             mLine[i] = new Value();
@@ -42,7 +46,7 @@ public class DiamondSquareGenerator implements MapGenerator {
         Value r = mLine[length - 1];
         midPoint(l, r);
 
-        int[] lineInt = new int[length];
+        double[] lineInt = new double[length];
 
         for (int i = 0; i < lineInt.length; i++) {
             lineInt[i] = mLine[i].v;
@@ -56,12 +60,16 @@ public class DiamondSquareGenerator implements MapGenerator {
             return;
         }
         Value c = mLine[(l.i + r.i) / 2];
-        c.v = l.middle(r);
+        c.v = l.middle(r) + random(ROUGHNESS * Math.abs(l.i - r.i));
         midPoint(l, c);
         midPoint(c, r);
     }
 
     private int random() {
         return (int) (Math.random() * LINE_MAX_HEIGHT);
+    }
+
+    public static double random(double range) {
+        return range - ((2 * range) * sRandom.nextDouble());
     }
 }

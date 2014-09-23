@@ -5,5 +5,5 @@ package org.zapylaev.sandbox.map;
  */
 public interface MapGenerator {
     int[][] generateMap(int size);
-    int[] generateLine(int length);
+    double[] generateLine(int length);
 }
