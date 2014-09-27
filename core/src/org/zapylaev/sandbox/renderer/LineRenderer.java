@@ -12,7 +12,7 @@ import org.zapylaev.sandbox.map.MapGenerator;
 public class LineRenderer implements Renderer {
 
     private final MapGenerator mMapGenerator;
-    private double[] mLine;
+    private int[] mLine;
     private ShapeRenderer mShapeRenderer;
 
     public LineRenderer() {

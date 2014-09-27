@@ -35,7 +35,7 @@ public class GdxSandboxGame extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         mMainCamera.update();
 
-//        mMapRenderer.render(mMainCamera);
+        mMapRenderer.render(mMainCamera);
         mLineRenderer.render(mMainCamera);
         mFpsRenderer.render(mMainCamera);
     }

@@ -7,32 +7,25 @@ import java.util.Random;
  */
 public class DiamondSquareGenerator implements MapGenerator {
 
-    public static final int LINE_MAX_HEIGHT = 30;
-    public static final double ROUGHNESS = 0.09;
+    public static final int LINE_MAX_HEIGHT = 64;
+    public static final double ROUGHNESS = 0.1;
     private Value[] mLine;
     private static Random sRandom = new Random();
 
     @Override
     public int[][] generateMap(int size) {
-        return new int[0][];
-    }
-
-    static class Value {
-        int i;
-        double v;
-
-        double middle(Value other) {
-            return (other.v + v) / 2.0;
+        int[] line = generateLine(size);
+        int[][] result = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                result[i][j] = line[i];
+            }
         }
-
-        @Override
-        public String toString() {
-            return i + "";
-        }
+        return result;
     }
 
     @Override
-    public double[] generateLine(int length) {
+    public int[] generateLine(int length) {
         mLine = new Value[length];
         for (int i = 0; i < mLine.length; i++) {
             mLine[i] = new Value();
@@ -46,10 +39,10 @@ public class DiamondSquareGenerator implements MapGenerator {
         Value r = mLine[length - 1];
         midPoint(l, r);
 
-        double[] lineInt = new double[length];
+        int[] lineInt = new int[length];
 
         for (int i = 0; i < lineInt.length; i++) {
-            lineInt[i] = mLine[i].v;
+            lineInt[i] = (int) mLine[i].v;
         }
 
         return lineInt;
@@ -71,5 +64,19 @@ public class DiamondSquareGenerator implements MapGenerator {
 
     public static double random(double range) {
         return range - ((2 * range) * sRandom.nextDouble());
+    }
+
+    private static class Value {
+        int i;
+        double v;
+
+        double middle(Value other) {
+            return (other.v + v) / 2.0;
+        }
+
+        @Override
+        public String toString() {
+            return i + "";
+        }
     }
 }

@@ -1,6 +1,9 @@
 package org.zapylaev.sandbox.renderer;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
@@ -8,6 +11,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 import org.zapylaev.sandbox.Constants;
+import org.zapylaev.sandbox.map.DiamondSquareGenerator;
 import org.zapylaev.sandbox.map.GenerateFromFile;
 import org.zapylaev.sandbox.map.MapGenerator;
 import org.zapylaev.sandbox.texture.TextureMapping;
@@ -23,7 +27,7 @@ public class MapRenderer implements Renderer {
 
     public MapRenderer() {
         mTextureMapping = new TextureMapping();
-        MapGenerator mapGenerator = new GenerateFromFile();
+        MapGenerator mapGenerator = new DiamondSquareGenerator();
         int[][] generatedMap = mapGenerator.generateMap(Constants.MAP_SIZE);
         mTiledMap = new TiledMap();
         mTiledMapRenderer = new OrthogonalTiledMapRenderer(mTiledMap);
@@ -33,7 +37,9 @@ public class MapRenderer implements Renderer {
             for (int j = 0; j < Constants.MAP_SIZE; j++) {
                 TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
                 int mapCellValue = generatedMap[i][j];
-                cell.setTile(new StaticTiledMapTile(mTextureMapping.get(mapCellValue)));
+                TextureRegion textureRegion = mTextureMapping.get(mapCellValue);
+                StaticTiledMapTile tile = new StaticTiledMapTile(textureRegion);
+                cell.setTile(tile);
                 layer.setCell(j, i, cell);
             }
         }
