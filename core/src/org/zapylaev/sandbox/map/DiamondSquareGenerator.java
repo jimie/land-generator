@@ -1,5 +1,7 @@
 package org.zapylaev.sandbox.map;
 
+import org.zapylaev.sandbox.Constants;
+
 import java.util.Random;
 
 /**
@@ -46,6 +48,8 @@ public class DiamondSquareGenerator implements MapGenerator {
         return result;
     }
 
+    private Value zero = new Value();
+
     private void midPoint(Value leftTop, Value rightTop, Value leftBottom, Value rightBottom) {
         if (Math.abs(leftTop.x - rightTop.x) <= 1) {
             return;
@@ -53,17 +57,48 @@ public class DiamondSquareGenerator implements MapGenerator {
         Value c = mMap[(leftTop.x + rightTop.x) / 2][(leftTop.y + leftBottom.y) / 2];
         c.v = leftTop.middle(rightTop, leftBottom, rightBottom) + randomExtra(leftTop, rightTop);
 
+        int difference = rightTop.x - leftTop.x;
+
         Value cTop = mMap[(leftTop.x + rightTop.x) / 2][leftTop.y];
-        cTop.v = leftTop.middle(rightTop) + randomExtra(leftTop, rightTop);
+        int diamondTopY = c.y - difference;
+        Value diamondTop;
+        if (diamondTopY < 0) {
+            diamondTop = zero;
+        } else {
+            diamondTop = mMap[c.x][diamondTopY];
+        }
+        cTop.v = leftTop.middle(rightTop, diamondTop, c) + randomExtra(leftTop, rightTop);
 
         Value cLeft = mMap[leftTop.x][(leftTop.y + leftBottom.y) / 2];
-        cLeft.v = leftTop.middle(leftBottom) + randomExtra(leftTop, leftBottom);
+        int diamondLeftX = c.x - difference;
+        Value diamondLeft;
+        if (diamondLeftX < 0) {
+            diamondLeft = zero;
+        } else {
+            diamondLeft = mMap[diamondLeftX][c.y];
+        }
+        cLeft.v = leftTop.middle(leftBottom, diamondLeft, c) + randomExtra(leftTop, leftBottom);
 
         Value cRight = mMap[rightTop.x][(rightTop.y + rightBottom.y) / 2];
-        cRight.v = rightTop.middle(rightBottom) + randomExtra(rightTop, rightBottom);
+        int diamondRightX = c.x + difference;
+        Value diamondRight;
+        if (diamondRightX > Constants.MAP_SIZE - 1) {
+            diamondRight = zero;
+        } else {
+            diamondRight = mMap[diamondRightX][c.y];
+        }
+        cRight.v = rightTop.middle(rightBottom, diamondRight, c) + randomExtra(rightTop, rightBottom);
 
         Value cBottom = mMap[(leftBottom.x + rightBottom.x) / 2][leftBottom.y];
-        cBottom.v = leftBottom.middle(rightBottom) + randomExtra(leftBottom, rightBottom);
+        int diamondBottomY = c.y + difference;
+        Value diamondBottom;
+        if (diamondBottomY > Constants.MAP_SIZE - 1) {
+            diamondBottom = zero;
+        } else {
+            diamondBottom = mMap[c.x][diamondBottomY];
+        }
+        cBottom.v = leftBottom.middle(rightBottom, diamondBottom, c) + randomExtra(leftBottom, rightBottom);
+
         midPoint(leftTop, cTop, cLeft, c);
         midPoint(cTop, rightTop, c, cRight);
         midPoint(cLeft, c, leftBottom, cBottom);
