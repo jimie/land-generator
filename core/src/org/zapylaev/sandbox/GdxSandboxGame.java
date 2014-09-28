@@ -36,7 +36,7 @@ public class GdxSandboxGame extends ApplicationAdapter {
         mMainCamera.update();
 
         mMapRenderer.render(mMainCamera);
-        mLineRenderer.render(mMainCamera);
+//        mLineRenderer.render(mMainCamera);
         mFpsRenderer.render(mMainCamera);
     }
 

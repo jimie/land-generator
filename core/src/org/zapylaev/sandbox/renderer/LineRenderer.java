@@ -3,6 +3,7 @@ package org.zapylaev.sandbox.renderer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import org.zapylaev.sandbox.Constants;
 import org.zapylaev.sandbox.map.DiamondSquareGenerator;
 import org.zapylaev.sandbox.map.MapGenerator;
 
@@ -17,7 +18,7 @@ public class LineRenderer implements Renderer {
 
     public LineRenderer() {
         mMapGenerator = new DiamondSquareGenerator();
-        mLine = mMapGenerator.generateLine(128);
+        mLine = mMapGenerator.generateLine(Constants.MAP_SIZE);
         mShapeRenderer = new ShapeRenderer();
     }
 
