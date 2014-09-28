@@ -21,7 +21,7 @@ public class FpsRenderer implements Renderer {
     @Override
     public void render(OrthographicCamera camera) {
         mBatch.begin();
-        mFont.draw(mBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+        mFont.draw(mBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 100, 20);
         mBatch.end();
     }
 }
