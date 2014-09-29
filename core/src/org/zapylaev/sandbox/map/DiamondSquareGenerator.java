@@ -1,7 +1,5 @@
 package org.zapylaev.sandbox.map;
 
-import org.zapylaev.sandbox.Constants;
-
 import java.util.Random;
 
 /**
@@ -9,138 +7,105 @@ import java.util.Random;
  */
 public class DiamondSquareGenerator implements MapGenerator {
 
-    public static final int LINE_MAX_HEIGHT = 64;
-    public static final double ROUGHNESS = 0.1;
-    private Value[] mLine;
-    private Value[][] mMap;
+    public static final int LINE_MAX_HEIGHT = 16;
+    public static final double ROUGHNESS = 0.4;
     private static Random sRandom = new Random();
+    private double[][] values;
+    private int size;
 
     @Override
     public int[][] generateMap(int size) {
-        mMap = new Value[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                mMap[i][j] = new Value();
-                mMap[i][j].x = i;
-                mMap[i][j].y = j;
-                mMap[i][j].v = 30;
-            }
+        this.size = size;
+        values = new double[size + 1][size + 1];
+
+        setValue(0, 0, random());
+        setValue(0, size, random());
+        setValue(size, 0, random());
+        setValue(size, size, random());
+
+        int stepSize = size;
+        while (stepSize > 1) {
+            diamondSquare(stepSize);
+            stepSize /= 2;
         }
-
-        mMap[0][0].v = random();
-        mMap[size - 1][0].v = random();
-        mMap[0][size - 1].v = random();
-        mMap[size - 1][size - 1].v = random();
-
-        Value leftTop = mMap[0][0];
-        Value rightTop = mMap[size - 1][0];
-        Value leftBottom = mMap[0][size - 1];
-        Value rightBottom = mMap[size - 1][size - 1];
-
-        midPoint(leftTop, rightTop, leftBottom, rightBottom);
 
         int[][] result = new int[size][size];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                result[i][j] = (int) mMap[i][j].v;
+                result[i][j] = (int) values[i][j];
             }
         }
         return result;
     }
 
-    private Value zero = new Value();
+    void diamondSquare(int stepSize) {
+        int halfStep = stepSize / 2;
 
-    private void midPoint(Value leftTop, Value rightTop, Value leftBottom, Value rightBottom) {
-        if (Math.abs(leftTop.x - rightTop.x) <= 1) {
+        for (int y = halfStep; y < size + halfStep; y += stepSize) {
+            for (int x = halfStep; x < size + halfStep; x += stepSize) {
+                sampleSquare(x, y, stepSize, randomExtra(stepSize));
+            }
+        }
+
+        for (int y = 0; y < size; y += stepSize) {
+            for (int x = 0; x < size; x += stepSize) {
+                sampleDiamond(x + halfStep, y, stepSize, randomExtra(stepSize));
+                sampleDiamond(x, y + halfStep, stepSize, randomExtra(stepSize));
+            }
+        }
+    }
+
+    public void sampleSquare(int x, int y, int size, double value) {
+        int hs = size / 2;
+
+        // a     b
+        //
+        //    x
+        //
+        // c     d
+
+        double a = getValue(x - hs, y - hs);
+        double b = getValue(x + hs, y - hs);
+        double c = getValue(x - hs, y + hs);
+        double d = getValue(x + hs, y + hs);
+
+        setValue(x, y, ((a + b + c + d) / 4.0) + value);
+    }
+
+    public void sampleDiamond(int x, int y, int size, double value) {
+        int hs = size / 2;
+
+        //   c
+        //
+        //a  x  b
+        //
+        //   d
+
+        double a = getValue(x - hs, y);
+        double b = getValue(x + hs, y);
+        double c = getValue(x, y - hs);
+        double d = getValue(x, y + hs);
+
+        setValue(x, y, ((a + b + c + d) / 4.0) + value);
+    }
+
+    public double getValue(int x, int y) {
+        if (x > values.length - 1 || x < 0 || y > values.length - 1 || y < 0) {
+            return -10;
+        }
+        return values[x][y];
+    }
+
+    public void setValue(int x, int y, double value) {
+        if (x > values.length - 1 || x < 0 || y > values.length - 1 || y < 0) {
             return;
         }
-        Value c = mMap[(leftTop.x + rightTop.x) / 2][(leftTop.y + leftBottom.y) / 2];
-        c.v = leftTop.middle(rightTop, leftBottom, rightBottom) + randomExtra(leftTop, rightTop);
 
-        int difference = rightTop.x - leftTop.x;
-
-        Value cTop = mMap[(leftTop.x + rightTop.x) / 2][leftTop.y];
-        int diamondTopY = c.y - difference;
-        Value diamondTop;
-        if (diamondTopY < 0) {
-            diamondTop = zero;
-        } else {
-            diamondTop = mMap[c.x][diamondTopY];
-        }
-        cTop.v = leftTop.middle(rightTop, diamondTop, c) + randomExtra(leftTop, rightTop);
-
-        Value cLeft = mMap[leftTop.x][(leftTop.y + leftBottom.y) / 2];
-        int diamondLeftX = c.x - difference;
-        Value diamondLeft;
-        if (diamondLeftX < 0) {
-            diamondLeft = zero;
-        } else {
-            diamondLeft = mMap[diamondLeftX][c.y];
-        }
-        cLeft.v = leftTop.middle(leftBottom, diamondLeft, c) + randomExtra(leftTop, leftBottom);
-
-        Value cRight = mMap[rightTop.x][(rightTop.y + rightBottom.y) / 2];
-        int diamondRightX = c.x + difference;
-        Value diamondRight;
-        if (diamondRightX > Constants.MAP_SIZE - 1) {
-            diamondRight = zero;
-        } else {
-            diamondRight = mMap[diamondRightX][c.y];
-        }
-        cRight.v = rightTop.middle(rightBottom, diamondRight, c) + randomExtra(rightTop, rightBottom);
-
-        Value cBottom = mMap[(leftBottom.x + rightBottom.x) / 2][leftBottom.y];
-        int diamondBottomY = c.y + difference;
-        Value diamondBottom;
-        if (diamondBottomY > Constants.MAP_SIZE - 1) {
-            diamondBottom = zero;
-        } else {
-            diamondBottom = mMap[c.x][diamondBottomY];
-        }
-        cBottom.v = leftBottom.middle(rightBottom, diamondBottom, c) + randomExtra(leftBottom, rightBottom);
-
-        midPoint(leftTop, cTop, cLeft, c);
-        midPoint(cTop, rightTop, c, cRight);
-        midPoint(cLeft, c, leftBottom, cBottom);
-        midPoint(c, cRight, cBottom, rightBottom);
+        values[x][y] = value;
     }
 
-    private double randomExtra(Value left, Value right) {
-        return random(ROUGHNESS * Math.abs(left.x - right.x));
-    }
-
-    @Override
-    public int[] generateLine(int length) {
-        mLine = new Value[length];
-        for (int i = 0; i < mLine.length; i++) {
-            mLine[i] = new Value();
-            mLine[i].x = i;
-            mLine[i].v = 0;
-        }
-        mLine[0].v = random();
-        mLine[length - 1].v = random();
-
-        Value l = mLine[0];
-        Value r = mLine[length - 1];
-        midPoint(l, r);
-
-        int[] result = new int[length];
-
-        for (int i = 0; i < result.length; i++) {
-            result[i] = (int) mLine[i].v;
-        }
-
-        return result;
-    }
-
-    private void midPoint(Value l, Value r) {
-        if (Math.abs(l.x - r.x) <= 1) {
-            return;
-        }
-        Value c = mLine[(l.x + r.x) / 2];
-        c.v = l.middle(r) + randomExtra(l, r);
-        midPoint(l, c);
-        midPoint(c, r);
+    private double randomExtra(double l) {
+        return random(l * ROUGHNESS);
     }
 
     private int random() {
@@ -149,24 +114,5 @@ public class DiamondSquareGenerator implements MapGenerator {
 
     public static double random(double range) {
         return range - ((2 * range) * sRandom.nextDouble());
-    }
-
-    private static class Value {
-        int x;
-        int y;
-        double v;
-
-        double middle(Value other) {
-            return (other.v + v) / 2.0;
-        }
-
-        double middle(Value other1, Value other2, Value other3) {
-            return (other1.v + other2.v + other3.v + v) / 4.0;
-        }
-
-        @Override
-        public String toString() {
-            return x + "";
-        }
     }
 }

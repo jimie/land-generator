@@ -3,19 +3,14 @@ package org.zapylaev.sandbox;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import org.zapylaev.sandbox.renderer.FpsRenderer;
-import org.zapylaev.sandbox.renderer.LineRenderer;
 import org.zapylaev.sandbox.renderer.MapRenderer;
 import org.zapylaev.sandbox.renderer.Renderer;
 
@@ -25,7 +20,6 @@ public class GdxSandboxGame extends ApplicationAdapter {
     private OrthographicCamera mMainCamera;
     private Renderer mFpsRenderer;
     private Renderer mMapRenderer;
-    private Renderer mLineRenderer;
 
     @Override
     public void create() {
@@ -44,7 +38,6 @@ public class GdxSandboxGame extends ApplicationAdapter {
 
         mFpsRenderer = new FpsRenderer();
         mMapRenderer = new MapRenderer();
-        mLineRenderer = new LineRenderer();
     }
 
     private void initUI() {
@@ -66,7 +59,6 @@ public class GdxSandboxGame extends ApplicationAdapter {
         mMainCamera.update();
 
         mMapRenderer.render(mMainCamera);
-//        mLineRenderer.render(mMainCamera);
         mFpsRenderer.render(mMainCamera);
         mUI.act();
         mUI.draw();
